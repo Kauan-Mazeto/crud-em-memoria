@@ -31,7 +31,7 @@ app.get("/usuarios", (req, res) => {
 });
 
 app.post("/usuarios", (req, res) => {
-  
+
   //pegar nome e email
   //do body
     const {nome, email} = req.body;
@@ -76,7 +76,51 @@ app.delete("/usuarios/:id", (req, res) => {
 
   usuarios.splice(usuarioIndex, 1);
   res.status(204).send();
-});
+}); 
 
+app.patch("/usuarios/:id", (req, res) => {
+  const id = parseInt(req.params.id);
+
+  if (isNaN(id)) {
+    return res.status(400).json({ mensagem: "ID inválido" });
+  }
+
+  const usuario = usuarios.find((usuario) => usuario.id === id);
+
+  const { nome, email } = req.body;
+
+  if (!usuario && !email) {
+    return res.status(404).json({ mensagem: "nome e email são obrigatórios" });
+  };
+
+
+  //atualizar email
+  if (email) {
+
+    //verificar se o email já existe
+    let email_existe = usuarios.findIndex(usuario => usuario.email === email);
+
+    //dar retorno de email existente
+    if (email_existe !== -1) {
+      return res.status(409).json({ mensagem: "Email já cadastrado" });
+    }
+
+    //atualizar email
+    usuario.email = email;
+    console.log("Email atualizado:", usuario.email);
+
+  }
+
+  //atualizar nome
+  if (nome) {
+
+    //atualizar nome
+    usuario.nome = nome;
+    console.log("Nome atualizado:", usuario.nome);
+
+  }
+
+  res.status(200).json(usuario);
+});
 
 app.listen(3000)
